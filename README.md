@@ -6,7 +6,13 @@ A mini assessment engine simulating core assessment engine of Acad AI
 
 ```mermaid
 erDiagram
-    User ||--o{ Submission : "submits"
+    User ||--o{ Submission : submits
+    Course ||--o{ Exam : contains
+    Exam ||--o{ Question : has
+    Exam ||--o{ Submission : receives
+    Question ||--o{ Answer : answered_by
+    Submission ||--o{ Answer : includes
+
     User {
         int id PK
         string username UK
@@ -19,7 +25,6 @@ erDiagram
         datetime updated_at
     }
 
-    Course ||--o{ Exam : "contains"
     Course {
         int id PK
         string code UK
@@ -30,8 +35,6 @@ erDiagram
         datetime updated_at
     }
 
-    Exam ||--o{ Question : "contains"
-    Exam ||--o{ Submission : "receives"
     Exam {
         int id PK
         int course_id FK
@@ -46,7 +49,6 @@ erDiagram
         datetime updated_at
     }
 
-    Question ||--o{ Answer : "receives"
     Question {
         int id PK
         int exam_id FK
@@ -60,7 +62,6 @@ erDiagram
         datetime updated_at
     }
 
-    Submission ||--o{ Answer : "contains"
     Submission {
         int id PK
         int user_id FK
