@@ -61,8 +61,6 @@ class User(AbstractUser):
         null=True,
         help_text="Optional username",
     )
-
-    # Additional fields beyond AbstractUser
     role = models.CharField(
         max_length=20,
         choices=RoleChoices.choices,
@@ -70,14 +68,12 @@ class User(AbstractUser):
         help_text="User role in the system",
         db_index=True,
     )
-
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="Timestamp when user was created"
     )
     updated_at = models.DateTimeField(
         auto_now=True, help_text="Timestamp when user was last updated"
     )
-
     # Make email required and unique
     email = models.EmailField(
         unique=True,
