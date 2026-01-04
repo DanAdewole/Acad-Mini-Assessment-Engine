@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config, Csv
+
+from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -179,7 +180,7 @@ REST_FRAMEWORK = {
         "user": "1000/hour",  # Authenticated users
     },
     # Error handling
-    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
+    "EXCEPTION_HANDLER": "assessment_engine.exceptions.custom_exception_handler",
     # Date/Time formatting
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     # API Documentation with drf-spectacular
@@ -188,8 +189,6 @@ REST_FRAMEWORK = {
 
 
 # drf-spectacular settings
-# https://drf-spectacular.readthedocs.io/en/latest/settings.html
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "Mini Assessment Engine API",
     "DESCRIPTION": "API for Acad AI Mini Assessment Engine - A platform for exams, submissions, and automated grading",
