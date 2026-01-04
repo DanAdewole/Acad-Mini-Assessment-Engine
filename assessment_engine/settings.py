@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-!o+&bnep*qg+9-6q)ezlpf3@^unp8_(3a!dev!)p0w4h8w*^+g"
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default="django-insecure-!o+&bnep*qg+9-6q)ezlpf3@^unp8_(3a!dev!)p0w4h8w*^+g",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
 
 # Application definition
@@ -37,6 +41,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party apps
+    "rest_framework",
+    "rest_framework.authtoken",
+    "drf_spectacular",
+    # Local apps
+    "users",
+    "courses",
+    "exams",
+    "submissions",
 ]
 
 MIDDLEWARE = [
@@ -72,12 +85,22 @@ WSGI_APPLICATION = "assessment_engine.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Use PostgreSQL if DATABASE_URL is provided, otherwise fallback to SQLite
+DATABASE_URL = config("DATABASE_URL", default=None)
+
+if DATABASE_URL:
+    # PostgreSQL configuration (for production/staging)
+    import dj_database_url
+
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
+else:
+    # SQLite configuration (for local development)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
 
 
 # Password validation
@@ -97,6 +120,9 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+# Custom User Model
+AUTH_USER_MODEL = "users.User"
 
 
 # Internationalization
@@ -120,3 +146,67 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Django REST Framework
+# https://www.django-rest-framework.org/api-guide/settings/
+
+REST_FRAMEWORK = {
+    # Authentication
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",  # For browsable API
+    ],
+    # Permissions
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    # Pagination
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    # Rendering
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",  # For development
+    ],
+    # Throttling (rate limiting)
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/hour",  # Anonymous users
+        "user": "1000/hour",  # Authenticated users
+    },
+    # Error handling
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
+    # Date/Time formatting
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
+    # API Documentation with drf-spectacular
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+# drf-spectacular settings
+# https://drf-spectacular.readthedocs.io/en/latest/settings.html
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Mini Assessment Engine API",
+    "DESCRIPTION": "API for Acad AI Mini Assessment Engine - A platform for exams, submissions, and automated grading",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # Authentication
+    "SECURITY": [
+        {
+            "tokenAuth": [],
+        }
+    ],
+    "COMPONENT_SPLIT_REQUEST": True,
+    # Schema customization
+    "SCHEMA_PATH_PREFIX": "/api/",
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
+    },
+}
