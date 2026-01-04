@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
     # Authentication
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
-        "rest_framework.authentication.SessionAuthentication",  # For browsable API
+        "rest_framework.authentication.SessionAuthentication",
     ],
     # Permissions
     "DEFAULT_PERMISSION_CLASSES": [
@@ -176,14 +176,11 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",  # Anonymous users
-        "user": "1000/hour",  # Authenticated users
+        "anon": "100/hour",
+        "user": "1000/hour",
     },
-    # Error handling
     "EXCEPTION_HANDLER": "assessment_engine.exceptions.custom_exception_handler",
-    # Date/Time formatting
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
-    # API Documentation with drf-spectacular
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
@@ -194,14 +191,12 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API for Acad AI Mini Assessment Engine - A platform for exams, submissions, and automated grading",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    # Authentication
     "SECURITY": [
         {
             "tokenAuth": [],
         }
     ],
     "COMPONENT_SPLIT_REQUEST": True,
-    # Schema customization
     "SCHEMA_PATH_PREFIX": "/api/",
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
