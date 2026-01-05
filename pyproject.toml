@@ -15,6 +15,11 @@ psycopg2-binary = ">=2.9.0,<3.0.0"
 python-decouple = ">=3.8,<4.0.0"
 dj-database-url = ">=2.1.0,<3.0.0"
 scikit-learn = ">=1.6.0,<2.0.0"
+openai = {version = ">=1.0.0,<2.0.0", optional = true}
+
+
+[tool.poetry.extras]
+ai-grading = ["openai"]
 
 
 [tool.poetry.group.dev.dependencies]
