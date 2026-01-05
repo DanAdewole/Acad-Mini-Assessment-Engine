@@ -1,10 +1,3 @@
-"""
-Custom permission classes for the assessment engine.
-
-These permissions control access to resources based on user roles
-and ownership.
-"""
-
 from rest_framework import permissions
 
 
@@ -52,6 +45,14 @@ class IsInstructor(permissions.BasePermission):
         return request.user.is_authenticated and request.user.role == "instructor"
 
 
+class IsAdmin(permissions.BasePermission):
+    """Permission to only allow admins."""
+
+    def has_permission(self, request, view):
+        """Check if user is an admin."""
+        return request.user.is_authenticated and request.user.role == "admin"
+
+
 class IsInstructorOrAdmin(permissions.BasePermission):
     """Permission to only allow instructors or admins."""
 
@@ -65,15 +66,23 @@ class IsInstructorOrAdmin(permissions.BasePermission):
 
 class IsStudentOwner(permissions.BasePermission):
     """
-    Permission to only allow students to access their own submissions.
+    Permission to allow students to access their own submissions.
+    Instructors and admins can access all submissions.
     """
 
     def has_permission(self, request, view):
-        """Check if user is authenticated and is a student."""
-        return request.user.is_authenticated and request.user.role == "student"
+        """Check if user is authenticated."""
+        return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        """Check if student owns the submission."""
+        """
+        Check if user can access the submission.
+        """
+        # Instructors and admins can access any submission
+        if request.user.role in ["instructor", "admin"]:
+            return True
+
+        # Students can only access their own submissions
         if hasattr(obj, "user"):
             return obj.user == request.user
         if hasattr(obj, "submission"):
@@ -84,13 +93,6 @@ class IsStudentOwner(permissions.BasePermission):
 class CanSubmitExam(permissions.BasePermission):
     """
     Permission to check if user can submit an exam.
-
-    Checks:
-    - User is authenticated
-    - User is a student
-    - Exam is published
-    - Exam is within time window
-    - Student hasn't already submitted (if retakes not allowed)
     """
 
     message = "You cannot submit this exam at this time."
