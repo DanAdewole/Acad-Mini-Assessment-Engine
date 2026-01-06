@@ -17,11 +17,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         style={"input_type": "password"},
         help_text="Password must be at least 8 characters long",
     )
-    password_confirm = serializers.CharField(
-        write_only=True,
-        style={"input_type": "password"},
-        help_text="Confirm your password",
-    )
     token = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -32,7 +27,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "password",
-            "password_confirm",
             "role",
             "token",
         ]
@@ -46,14 +40,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
 
-    def validate(self, attrs):
-        """Validate password confirmation."""
-        if attrs.get("password") != attrs.get("password_confirm"):
-            raise serializers.ValidationError(
-                {"password_confirm": "Passwords do not match"}
-            )
-        return attrs
-
     def validate_email(self, value):
         """Validate email is unique."""
         if User.objects.filter(email=value).exists():
@@ -62,8 +48,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create user with hashed password."""
-        validated_data.pop("password_confirm")
-
         # Create user using custom manager (handles password hashing)
         user = User.objects.create_user(**validated_data)
         return user

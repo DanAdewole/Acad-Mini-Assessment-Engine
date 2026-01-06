@@ -176,7 +176,7 @@ class ChangePasswordView(APIView):
             user.set_password(serializer.validated_data["new_password"])
             user.save()
 
-            # Delete old token and create new one (force re-login)
+            # Delete old token and create new one
             Token.objects.filter(user=user).delete()
             new_token = Token.objects.create(user=user)
 
