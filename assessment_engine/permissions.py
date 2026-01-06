@@ -4,9 +4,6 @@ from rest_framework import permissions
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Permission to only allow owners to edit their objects.
-
-    Read permissions are allowed to any request.
-    Write permissions are only allowed to the owner.
     """
 
     def has_object_permission(self, request, view, obj):
@@ -20,8 +17,6 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class IsOwner(permissions.BasePermission):
     """
     Permission to only allow owners to access their objects.
-
-    Both read and write permissions require ownership.
     """
 
     def has_object_permission(self, request, view, obj):
@@ -135,9 +130,6 @@ class CanSubmitExam(permissions.BasePermission):
 class ReadOnly(permissions.BasePermission):
     """
     Permission to only allow read-only access.
-
-    Useful for published exams and questions that students can view
-    but not modify.
     """
 
     def has_permission(self, request, view):
