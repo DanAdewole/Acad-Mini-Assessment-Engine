@@ -6,8 +6,6 @@ from .responses import StandardResponse
 class StandardResponseMixin:
     """
     Mixin to use standardized responses in views.
-
-    Provides helper methods for consistent API responses.
     """
 
     def success_response(
@@ -37,13 +35,10 @@ class StandardResponseMixin:
 class QueryOptimizationMixin:
     """
     Mixin to optimize database queries.
-
-    Automatically applies select_related and prefetch_related
-    based on defined attributes.
     """
 
-    select_related_fields = []  # Override in view
-    prefetch_related_fields = []  # Override in view
+    select_related_fields = []
+    prefetch_related_fields = []
 
     def get_queryset(self):
         """Get optimized queryset with related fields."""
@@ -61,12 +56,9 @@ class QueryOptimizationMixin:
 class UserFilterMixin:
     """
     Mixin to filter queryset by current user.
-
-    Automatically filters queryset to show only the current user's data.
-    Useful for submissions, answers, etc.
     """
 
-    user_field = "user"  # Override if using different field name
+    user_field = "user"
 
     def get_queryset(self):
         """Filter queryset by current user."""
@@ -79,22 +71,3 @@ class UserFilterMixin:
             filter_kwargs = {self.user_field: self.request.user}
             return queryset.filter(**filter_kwargs)
         return queryset.none()
-
-
-class TimestampMixin:
-    """
-    Mixin to add timestamp information to serialized data.
-
-    Adds created_at and updated_at to readonly fields.
-    """
-
-    def get_serializer_class(self):
-        """Get serializer with timestamp fields as readonly."""
-        serializer_class = super().get_serializer_class()
-        if hasattr(serializer_class, "Meta"):
-            if not hasattr(serializer_class.Meta, "read_only_fields"):
-                serializer_class.Meta.read_only_fields = []
-            serializer_class.Meta.read_only_fields = list(
-                serializer_class.Meta.read_only_fields
-            ) + ["created_at", "updated_at"]
-        return serializer_class
