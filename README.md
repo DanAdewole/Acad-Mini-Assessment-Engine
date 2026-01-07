@@ -428,7 +428,7 @@ OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
 OPENAI_MODEL=gpt-4o-mini
 ```
 
-### 3. **Google Gemini Grading** ⭐ **Recommended**
+### 3. **Google Gemini Grading**
 
 **Best For:** Most use cases, best free tier
 
