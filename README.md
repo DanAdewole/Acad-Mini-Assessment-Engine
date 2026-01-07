@@ -21,10 +21,7 @@ A comprehensive, production-ready Django REST API for managing educational asses
 -   [Grading Methods](#-grading-methods)
 -   [API Documentation](#-api-documentation)
 -   [Configuration](#-configuration)
--   [Testing](#-testing)
--   [Deployment](#-deployment)
 -   [Documentation](#-documentation)
--   [Contributing](#-contributing)
 
 ---
 
