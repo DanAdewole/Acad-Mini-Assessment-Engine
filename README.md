@@ -177,13 +177,7 @@ python manage.py migrate
 # 3. Run migrations: python manage.py migrate
 ```
 
-5. **Load Sample Data (Optional)**
-
-```bash
-python manage.py loaddata fixtures/sample_data.json
-```
-
-6. **Run Server**
+5. **Run Server**
 
 ```bash
 python manage.py runserver
