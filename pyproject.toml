@@ -45,8 +45,8 @@ select = ["E", "F", "W", "I"]
 
 # Ignore rules that conflict with the formatter
 ignore = [
-    "E203",  # Whitespace before ':'
-    "E501",  # Line too long (handled by formatter)
+    "E203",
+    "E501",
 ]
 
 # Allow unused variables when underscore-prefixed
