@@ -137,6 +137,24 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-filter"
+version = "25.2"
+description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "django_filter-25.2-py3-none-any.whl", hash = "sha256:9c0f8609057309bba611062fe1b720b4a873652541192d232dd28970383633e3"},
+    {file = "django_filter-25.2.tar.gz", hash = "sha256:760e984a931f4468d096f5541787efb8998c61217b73006163bf2f9523fe8f23"},
+]
+
+[package.dependencies]
+Django = ">=5.2"
+
+[package.extras]
+drf = ["djangorestframework"]
+
+[[package]]
 name = "djangorestframework"
 version = "3.16.1"
 description = "Web APIs for Django, made easy."
@@ -1303,4 +1321,4 @@ ai-grading = ["openai"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "5565b9adbb1eb521cd91e361b6e3d7b0c6ba96d35b854997c5b6539e4e5f3bc7"
+content-hash = "fb11d0ff926a92f9f9e3743c79e5cf2490e2821e7692a28567d337cfd0b33394"

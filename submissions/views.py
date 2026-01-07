@@ -5,7 +5,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from assessment_engine.base_views import BaseModelViewSet
-from assessment_engine.grading import MockGradingService
 from assessment_engine.permissions import (
     CanSubmitExam,
     IsAdmin,
@@ -19,6 +18,7 @@ from .serializers import (
     SubmissionListSerializer,
     SubmissionSerializer,
 )
+from .utils import get_grading_service
 
 
 @extend_schema_view(
@@ -84,9 +84,6 @@ class SubmissionViewSet(BaseModelViewSet):
     def get_queryset(self):
         """
         Filter submissions based on user role.
-
-        Students see only their own submissions.
-        Instructors and admins see all submissions.
         """
         queryset = super().get_queryset()
 
@@ -99,18 +96,13 @@ class SubmissionViewSet(BaseModelViewSet):
     def get_permissions(self):
         """
         Set permissions based on action.
-
-        - Create: Students only (via CanSubmitExam permission)
-        - List: All authenticated users (filtered by role)
-        - Retrieve: Owner or instructor/admin (via IsStudentOwner)
-        - Update/Delete: Not allowed
         """
         if self.action == "create":
             permission_classes = [IsAuthenticated, CanSubmitExam]
         elif self.action == "retrieve":
             permission_classes = [IsAuthenticated, IsStudentOwner]
         elif self.action in ["update", "partial_update", "destroy"]:
-            # Submissions cannot be updated or deleted after creation
+            # Only admins can update or delete submissions
             permission_classes = [IsAuthenticated, IsAdmin]
         else:
             permission_classes = [IsAuthenticated]
@@ -120,28 +112,18 @@ class SubmissionViewSet(BaseModelViewSet):
     def create(self, request, *args, **kwargs):
         """
         Create a submission and automatically grade it.
-
-        Flow:
-        1. Validate submission data
-        2. Create submission and answers
-        3. Grade submission using grading service
-        4. Update submission with scores
-        5. Return graded submission
         """
-        # Validate and create submission
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Save submission (creates submission and answers)
         result = serializer.save()
         submission = result["submission"]
 
         # Get all answers for grading
         answers = submission.answers.select_related("question").all()
 
-        # Grade the submission (using Mock grading by default)
-        # TODO: Make grading service configurable
-        grading_service = MockGradingService()
+        # Grade the submission using configured grading service
+        grading_service = get_grading_service()
 
         try:
             grading_result = grading_service.grade_submission(submission, answers)
@@ -149,15 +131,14 @@ class SubmissionViewSet(BaseModelViewSet):
             # Update submission with grading results
             submission.total_score = grading_result["total_score"]
             submission.max_score = grading_result["max_score"]
-            submission.status = Submission.SubmissionStatusChoices.GRADED
+            submission.status = Submission.Status.GRADED
             submission.graded_at = timezone.now()
             submission.save()
 
         except Exception as e:
             # If grading fails, mark as submitted but not graded
-            submission.status = Submission.SubmissionStatusChoices.SUBMITTED
+            submission.status = Submission.Status.SUBMITTED
             submission.save()
-            # Log error (in production, use proper logging)
             print(f"Grading error: {e}")
 
         # Return the graded submission
@@ -285,8 +266,8 @@ class SubmissionViewSet(BaseModelViewSet):
         # Get all answers for grading
         answers = submission.answers.select_related("question").all()
 
-        # Grade the submission
-        grading_service = MockGradingService()
+        # Grade the submission using configured grading service
+        grading_service = get_grading_service()
 
         try:
             grading_result = grading_service.grade_submission(submission, answers)
@@ -294,7 +275,7 @@ class SubmissionViewSet(BaseModelViewSet):
             # Update submission with new grading results
             submission.total_score = grading_result["total_score"]
             submission.max_score = grading_result["max_score"]
-            submission.status = Submission.SubmissionStatusChoices.GRADED
+            submission.status = Submission.Status.GRADED
             submission.graded_at = timezone.now()
             submission.save()
 

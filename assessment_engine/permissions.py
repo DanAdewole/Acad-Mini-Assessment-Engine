@@ -62,7 +62,6 @@ class IsInstructorOrAdmin(permissions.BasePermission):
 class IsStudentOwner(permissions.BasePermission):
     """
     Permission to allow students to access their own submissions.
-    Instructors and admins can access all submissions.
     """
 
     def has_permission(self, request, view):

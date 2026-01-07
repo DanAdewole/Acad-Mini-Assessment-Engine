@@ -40,8 +40,8 @@ from .serializers import (
                     "title": "Midterm Exam",
                     "description": "Covers chapters 1-5",
                     "duration_minutes": 90,
-                    "start_time": "2024-03-01T09:00:00Z",
-                    "end_time": "2024-03-01T12:00:00Z",
+                    "start_time": "2026-01-08T09:00:00Z",
+                    "end_time": "2026-01-08T12:00:00Z",
                     "is_published": False,
                 },
                 request_only=True,
@@ -67,11 +67,6 @@ from .serializers import (
 class ExamViewSet(BaseModelViewSet):
     """
     ViewSet for managing exams.
-
-    Provides CRUD operations for exams with role-based access control:
-    - Students: Can only view published, active exams (hides expected answers)
-    - Instructors: Can create, view, and update exams (sees all details)
-    - Admins: Full access including deletion
     """
 
     queryset = Exam.objects.all()
@@ -87,31 +82,26 @@ class ExamViewSet(BaseModelViewSet):
     prefetch_related_fields = ["questions"]
 
     def get_serializer_class(self):
-        """
-        Use appropriate serializer based on action and user role.
-
-        - List: Lightweight serializer
-        - Retrieve (students): Hide expected answers
-        - Retrieve (instructors/admins): Full details
-        """
         if self.action == "list":
             return ExamListSerializer
         elif self.action == "retrieve":
-            # Students get sanitized view without answers
             if self.request.user.is_student:
                 return ExamDetailSerializer
-            # Instructors/admins get full details
             return ExamSerializer
         return ExamSerializer
 
     def get_queryset(self):
         """
         Filter exams based on user role.
-
-        Students see only published exams.
-        Instructors and admins see all exams.
         """
-        queryset = super().get_queryset()
+        queryset = Exam.objects.all()
+
+        # Add optimizations
+        if self.select_related_fields:
+            queryset = queryset.select_related(*self.select_related_fields)
+
+        if self.prefetch_related_fields:
+            queryset = queryset.prefetch_related(*self.prefetch_related_fields)
 
         # Filter for students - only show published exams
         if self.request.user.is_student:
@@ -122,10 +112,6 @@ class ExamViewSet(BaseModelViewSet):
     def get_permissions(self):
         """
         Set permissions based on action.
-
-        - List/Retrieve: All authenticated users
-        - Create/Update: Instructors and admins
-        - Delete: Admins only
         """
         if self.action in ["create", "update", "partial_update"]:
             permission_classes = [IsAuthenticated, IsInstructorOrAdmin]
@@ -270,11 +256,6 @@ class ExamViewSet(BaseModelViewSet):
 class QuestionViewSet(BaseModelViewSet):
     """
     ViewSet for managing questions.
-
-    Provides CRUD operations for questions with role-based access control:
-    - Students: Cannot directly access (questions come with exams)
-    - Instructors: Can create, view, and update questions
-    - Admins: Full access including deletion
     """
 
     queryset = Question.objects.all()
@@ -287,6 +268,19 @@ class QuestionViewSet(BaseModelViewSet):
 
     # Query optimization
     select_related_fields = ["exam", "exam__course"]
+
+    def get_queryset(self):
+        """Get queryset with optimizations."""
+        queryset = Question.objects.all()
+
+        # Add optimizations
+        if self.select_related_fields:
+            queryset = queryset.select_related(*self.select_related_fields)
+
+        if self.prefetch_related_fields:
+            queryset = queryset.prefetch_related(*self.prefetch_related_fields)
+
+        return queryset
 
     def get_serializer_class(self):
         """Use lightweight serializer for list view."""

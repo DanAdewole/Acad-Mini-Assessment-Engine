@@ -9,11 +9,18 @@ class StandardResponseMixin:
     """
 
     def success_response(
-        self, data=None, message="Success", status_code=status.HTTP_200_OK
+        self,
+        data=None,
+        message="Success",
+        status_code=status.HTTP_200_OK,
+        extra_fields=None,
     ):
         """Return a standardized success response."""
         return StandardResponse.success(
-            data=data, message=message, status_code=status_code
+            data=data,
+            message=message,
+            status_code=status_code,
+            extra_fields=extra_fields,
         )
 
     def error_response(

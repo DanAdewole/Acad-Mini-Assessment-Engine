@@ -186,6 +186,7 @@ class SubmissionCreateSerializer(serializers.Serializer):
 
     exam_id = serializers.IntegerField(write_only=True)
     answers = AnswerCreateSerializer(many=True, write_only=True)
+    metadata = serializers.JSONField(required=False, write_only=True)
     submission = SubmissionSerializer(read_only=True)
 
     def validate_exam_id(self, value):
@@ -262,9 +263,33 @@ class SubmissionCreateSerializer(serializers.Serializer):
         """
         Create submission with answers.
         """
-        raise NotImplementedError(
-            "Use SubmissionViewSet.create() to handle submission creation"
+        exam_id = validated_data.pop("exam_id")
+        answers_data = validated_data.pop("answers")
+        metadata = validated_data.pop("metadata", {})
+
+        request = self.context.get("request")
+
+        exam = Exam.objects.get(id=exam_id)
+
+        # Create the submission
+        submission = Submission.objects.create(
+            user=request.user,
+            exam=exam,
+            submitted_at=timezone.now(),
+            status=Submission.Status.SUBMITTED,
+            metadata=metadata,
         )
+
+        # Create all answers
+        for answer_data in answers_data:
+            Answer.objects.create(
+                submission=submission,
+                question=answer_data["question"],
+                answer_text=answer_data.get("answer_text", ""),
+                answer_data=answer_data.get("answer_data", {}),
+            )
+
+        return {"submission": submission}
 
 
 class SubmissionListSerializer(serializers.ModelSerializer):

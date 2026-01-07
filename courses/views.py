@@ -56,11 +56,6 @@ from .serializers import CourseListSerializer, CourseSerializer
 class CourseViewSet(BaseModelViewSet):
     """
     ViewSet for managing courses.
-
-    Provides CRUD operations for courses with role-based access control:
-    - Students: Can only view active courses
-    - Instructors: Can create, view, and update courses
-    - Admins: Full access including deletion
     """
 
     queryset = Course.objects.all()
@@ -80,13 +75,17 @@ class CourseViewSet(BaseModelViewSet):
     def get_queryset(self):
         """
         Filter courses based on user role.
-
-        Students see only active courses.
-        Instructors and admins see all courses.
         """
-        queryset = super().get_queryset()
+        queryset = Course.objects.all()
 
-        # Optimize query with prefetch for exams
+        # Add optimizations
+        if self.select_related_fields:
+            queryset = queryset.select_related(*self.select_related_fields)
+
+        if self.prefetch_related_fields:
+            queryset = queryset.prefetch_related(*self.prefetch_related_fields)
+
+        # Additional prefetch for retrieve action
         if self.action == "retrieve":
             queryset = queryset.prefetch_related("exams")
 
@@ -99,10 +98,6 @@ class CourseViewSet(BaseModelViewSet):
     def get_permissions(self):
         """
         Set permissions based on action.
-
-        - List/Retrieve: All authenticated users
-        - Create/Update: Instructors and admins
-        - Delete: Admins only
         """
         if self.action in ["create", "update", "partial_update"]:
             permission_classes = [IsAuthenticated, IsInstructorOrAdmin]

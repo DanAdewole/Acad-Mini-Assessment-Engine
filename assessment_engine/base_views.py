@@ -15,19 +15,6 @@ class BaseModelViewSet(
 ):
     """
     Base ViewSet with all common functionality.
-
-    Provides:
-    - Standardized responses
-    - Query optimization (via select_related_fields, prefetch_related_fields)
-    - User filtering (students see only their data, instructors/admins see all)
-    - Automatic response wrapping for all CRUD operations
-
-    Usage:
-        class ExamViewSet(BaseModelViewSet):
-            queryset = Exam.objects.all()
-            serializer_class = ExamSerializer
-            select_related_fields = ['course']
-            prefetch_related_fields = ['questions']
     """
 
     auto_wrap_responses = True
@@ -148,8 +135,6 @@ class ReadOnlyBaseViewSet(
 ):
     """
     Base ViewSet for read-only endpoints.
-
-    Use for endpoints where users can only list and retrieve data.
     """
 
     auto_wrap_responses = True

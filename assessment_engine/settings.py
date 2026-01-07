@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
+    "django_filters",
     # Local apps
     "users",
     "courses",
@@ -162,6 +163,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    # Filtering, Searching, and Ordering
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
     # Pagination
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
@@ -204,3 +211,11 @@ SPECTACULAR_SETTINGS = {
         "displayOperationId": True,
     },
 }
+
+# Grading Configuration
+# Options: 'mock' (uses TF-IDF similarity) or 'ai' (uses OpenAI GPT)
+GRADING_SERVICE = config("GRADING_SERVICE", default="mock")
+
+# OpenAI Configuration (only needed if GRADING_SERVICE='ai')
+OPENAI_API_KEY = config("OPENAI_API_KEY", default=None)
+OPENAI_MODEL = config("OPENAI_MODEL", default="gpt-4")

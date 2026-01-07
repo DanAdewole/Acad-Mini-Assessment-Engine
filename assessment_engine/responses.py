@@ -16,7 +16,9 @@ class StandardResponse:
     """
 
     @staticmethod
-    def success(data=None, message="Success", status_code=status.HTTP_200_OK):
+    def success(
+        data=None, message="Success", status_code=status.HTTP_200_OK, extra_fields=None
+    ):
         """
         Return a successful response.
         """
@@ -25,6 +27,10 @@ class StandardResponse:
             "message": message,
             "data": data,
         }
+
+        if extra_fields:
+            response_data.update(extra_fields)
+
         return Response(response_data, status=status_code)
 
     @staticmethod
