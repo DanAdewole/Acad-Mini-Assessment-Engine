@@ -213,9 +213,13 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Grading Configuration
-# Options: 'mock' (uses TF-IDF similarity) or 'ai' (uses OpenAI GPT)
+# Options: 'mock' (TF-IDF), 'ai' (OpenAI GPT), 'gemini' (Google Gemini)
 GRADING_SERVICE = config("GRADING_SERVICE", default="mock")
 
 # OpenAI Configuration (only needed if GRADING_SERVICE='ai')
 OPENAI_API_KEY = config("OPENAI_API_KEY", default=None)
-OPENAI_MODEL = config("OPENAI_MODEL", default="gpt-4")
+OPENAI_MODEL = config("OPENAI_MODEL", default="gpt-4o-mini")
+
+# Google Gemini Configuration (only needed if GRADING_SERVICE='gemini')
+GEMINI_API_KEY = config("GEMINI_API_KEY", default=None)
+GEMINI_MODEL = config("GEMINI_MODEL", default="gemini-1.5-flash")
