@@ -14,11 +14,6 @@ class AIGradingService(GradingService):
     def __init__(self, api_key: str = None, model: str = "gpt-4o-mini"):
         """
         Initialize the AI grading service.
-
-        Args:
-            api_key: OpenAI API key (defaults to OPENAI_API_KEY from env)
-            model: Model to use (default: gpt-4o-mini for cost efficiency)
-                Options: gpt-4o-mini, gpt-4o, gpt-4-turbo, gpt-3.5-turbo
         """
         self.api_key = api_key or config("OPENAI_API_KEY", default="")
         self.model = model
@@ -47,9 +42,6 @@ class AIGradingService(GradingService):
     ) -> Dict[str, Any]:
         """
         Grade a single answer using AI.
-
-        Uses GPT to evaluate the answer with contextual understanding,
-        providing detailed feedback and accurate scoring.
         """
         prompt = self._build_grading_prompt(
             question_type, student_answer, expected_answer, max_points, options

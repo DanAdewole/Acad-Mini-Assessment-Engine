@@ -59,7 +59,7 @@ class GeminiGradingService(GradingService):
             response = self.client.generate_content(prompt)
             result_text = response.text
 
-            # Extract JSON from response (Gemini sometimes adds markdown)
+            # Extract JSON from response
             if "```json" in result_text:
                 result_text = result_text.split("```json")[1].split("```")[0].strip()
             elif "```" in result_text:
